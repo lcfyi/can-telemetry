@@ -6,7 +6,7 @@
 CANChannel can(CAN_D1_D2);
 
 // Initialize the telemetry object, debug
-CANTelemetry tele(can, 50000, true);
+CANTelemetry tele(can, 50000, 1000, true);
 
 unsigned long time_ms;
 
