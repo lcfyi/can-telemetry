@@ -4,12 +4,11 @@
 
 class CANTelemetry {
 public:
-    CANTelemetry(CANChannel &channel, int baud_rate, int timeout, bool debug);
-    CANTelemetry(CANChannel &channel, int baud_rate);
+    CANTelemetry(CANChannel &channel, int baud_rate, 
+                int timeout = 1000, bool debug = false);
 
-    uint64_t poll(uint32_t header, uint32_t filter, int len);
-    uint64_t poll(uint32_t header, int len);
-    uint64_t poll(uint32_t header);
+    uint64_t poll(uint32_t header, uint32_t filter, int len = 8);
+    uint64_t poll(uint32_t header, int len = 8);
 
     template <class T>
     T interpret(uint64_t data, int start, int end);

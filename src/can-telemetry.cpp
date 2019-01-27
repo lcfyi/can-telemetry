@@ -7,21 +7,12 @@
  * @param timeout   timeout before returning sentinel values
  * @param debug     debug flag 
  */
-CANTelemetry::CANTelemetry(CANChannel &channel, int baud_rate, int timeout, bool debug) {
+CANTelemetry::CANTelemetry(CANChannel &channel, int baud_rate, 
+                            int timeout, bool debug) {
     _can = &channel;
     _baud_rate = baud_rate;
     _timeout = (unsigned long)timeout;
     _debug = debug;
-}
-
-/** 
- * Constructor with timeout set at a default of 1 second, no debug.
- */
-CANTelemetry::CANTelemetry(CANChannel &channel, int baud_rate) {
-    _can = &channel;
-    _baud_rate = baud_rate;
-    _timeout = 1000;
-    _debug = false;
 }
 
 /**
@@ -73,14 +64,6 @@ uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter, int len) {
  */
 uint64_t CANTelemetry::poll(uint32_t header, int len) {
     return poll(header, header, len);
-}
-
-/**
- * Helper method for the common scenario in which the header is the 
- * same as the filter, and the returned data is 8 bytes.
- */
-uint64_t CANTelemetry::poll(uint32_t header) {
-    return poll(header, header, 8);
 }
 
 /** 
