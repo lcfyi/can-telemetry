@@ -31,22 +31,24 @@ CANTelemetry::CANTelemetry(CANChannel &channel, int baud_rate,
  * @param payload   payload to send
  * @param len       length of the payload
  */
-uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter,
+uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter, int mode,
                             uint8_t payload[], int len) {
 
     if (len > 8) return -1;
 
-    // Create the empty packet and send it
-    CANMessage message;
-    message.id = header;
-    message.len = len;
-    for (int i = 0; i < len; i++) {
-        message.data[i] = payload[i];
-    }
-
     // Set the mask and transmit our message
     _set_mask(filter);
-    _can->transmit(message);
+
+    if (mode == CALL_AND_RESP) {
+        // Create the packet and send it
+        CANMessage message;
+        message.id = header;
+        message.len = len;
+        for (int i = 0; i < len; i++) {
+            message.data[i] = payload[i];
+        }
+        _can->transmit(message);
+    }
 
     // Wait for a response, or timeout
     if (_can->errorStatus() == CAN_NO_ERROR) {
@@ -63,6 +65,9 @@ uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter,
             }
         }
     } else {
+        CANMessage clear;
+        clear.id = _node_id;
+        _can->transmit(clear); // Transmit to check error status
         _set_mask();
         return -1;
     }
@@ -72,8 +77,15 @@ uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter,
  * Overloaded method for same header and filter.
  * @param header    header and filter to set
  */
-uint64_t CANTelemetry::poll(uint32_t header) {
-    return poll(header, header);
+uint64_t CANTelemetry::poll(uint32_t header, int mode) {
+    return poll(header, header, mode);
+}
+
+/**
+ * Adjust the timeout for the poll before returning.
+ */
+void CANTelemetry::change_timeout(int timeout) {
+    _timeout = (unsigned long)timeout;
 }
 
 /** 

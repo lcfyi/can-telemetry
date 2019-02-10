@@ -2,14 +2,19 @@
 // Load the definition for common Particle objects
 #include "Particle.h"
 
+#define CALL_AND_RESP   1
+#define PASSIVE_POLL    2
+
 class CANTelemetry {
 public:
     CANTelemetry(CANChannel &channel, int baud_rate, int node_id,
                 int timeout = 1000, bool debug = false);
 
-    uint64_t poll(uint32_t header, uint32_t filter,
+    uint64_t poll(uint32_t header, uint32_t filter, int mode,
                   uint8_t payload[] = NULL, int len = 0);
-    uint64_t poll(uint32_t header);
+    uint64_t poll(uint32_t header, int mode);
+
+    void change_timeout(int timeout = 1000);
 
     template <class T>
     T interpret(uint64_t data, int starting, int ending);
