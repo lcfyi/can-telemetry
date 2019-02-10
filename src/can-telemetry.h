@@ -4,20 +4,24 @@
 
 class CANTelemetry {
 public:
-    CANTelemetry(CANChannel &channel, int baud_rate, 
+    CANTelemetry(CANChannel &channel, int baud_rate, int node_id,
                 int timeout = 1000, bool debug = false);
 
-    uint64_t poll(uint32_t header, uint32_t filter, int len = 8);
-    uint64_t poll(uint32_t header, int len = 8);
+    uint64_t poll(uint32_t header, uint32_t filter,
+                  uint8_t payload[] = NULL, int len = 0);
+    uint64_t poll(uint32_t header);
 
     template <class T>
-    T interpret(uint64_t data, int start, int end);
+    T interpret(uint64_t data, int starting, int ending);
 private:
     CANChannel * _can;
     int _baud_rate;
     unsigned long _timeout;
+    int _node_id;
     bool _debug;
     uint64_t _decode(uint8_t * arr, int len);
+    void _set_mask(int mask);
+    void _set_mask();
 };
 
 /** 
@@ -30,15 +34,15 @@ private:
  * NOTE that this supports little and big-endian byte sequences.
  */
 template <class T>
-T CANTelemetry::interpret(uint64_t data, int start, int end) {
+T CANTelemetry::interpret(uint64_t data, int s, int e) {
     uint8_t n[8] = {0};
     uint8_t * data_cast = reinterpret_cast<uint8_t *>(&data);
-    if (start > end) {
-        for (int i = start, a = 0; i >= end; i--, a++) {
+    if (s > e) {
+        for (int i = s, a = 0; i >= e; i--, a++) {
             n[a] = data_cast[i];
         }
     } else {
-        for (int i = start, a = 0; i <= end; i++, a++) {
+        for (int i = s, a = 0; i <= e; i++, a++) {
             n[a] = data_cast[i];
         }
     }

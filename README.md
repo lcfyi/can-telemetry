@@ -19,13 +19,15 @@ See the [examples](examples) folder for more details.
 `CANTelemetry(CANChannel &channel, int baud_rate, int timeout, bool debug)`
 - `channel` - the CAN channel object
 - `baud_rate` - the desired baud_rate for the CAN channel
+- `node_id` - the ID of this telemetry module on the bus
 - `timeout` - the desired timeout before we stop listening for a response (optional, default 1000 ms)
 - `debug` - flag to enable `CAN_TEST_MODE` (optional, default false)
 
 `poll(uint32_t header, uint32_t filter, int len)`
 - `header` - the CAN ID to send
 - `filter` - the response ID desired (optional, default header)
-- `len` - the length of the response message (optional, default 8)
+- `payload` - a byte array of the payload to send (optional, default `NULL`)
+- `len` - length of the byte array (optional, default 0)
 
 `interpret<type>(uint64_t data, int start, int end)`
 - `type` - the desired return type

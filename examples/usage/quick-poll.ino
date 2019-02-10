@@ -5,8 +5,8 @@
 // Initialize a CAN network 
 CANChannel can(CAN_D1_D2);
 
-// Initialize the telemetry object, debug
-CANTelemetry tele(can, 50000, 1000, true);
+// Initialize the telemetry object, node id 0, debug
+CANTelemetry tele(can, 50000, 0, 1000, true);
 
 unsigned long time_ms;
 
