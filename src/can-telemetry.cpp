@@ -28,11 +28,13 @@ CANTelemetry::CANTelemetry(CANChannel &channel, int baud_rate,
  * So an unsigned long long, basically.
  * @param header    header to poll the bus with
  * @param filter    response pattern to listen from the bus
+ * @param mode      mode to run at (CALL_AND_RESP or PASSIVE_POLL)
+ * @param frame     frame mode (DATA_FRAME or REMOTE_FRAME)
  * @param payload   payload to send
  * @param len       length of the payload
  */
 uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter, int mode,
-                            uint8_t payload[], int len) {
+                            bool frame, uint8_t payload[], int len) {
 
     if (len > 8) return -1;
 
@@ -44,6 +46,7 @@ uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter, int mode,
         CANMessage message;
         message.id = header;
         message.len = len;
+        message.rtr = frame;
         for (int i = 0; i < len; i++) {
             message.data[i] = payload[i];
         }
@@ -75,10 +78,15 @@ uint64_t CANTelemetry::poll(uint32_t header, uint32_t filter, int mode,
 
 /**
  * Overloaded method for same header and filter.
- * @param header    header and filter to set
+ * @param header    header and filter to poll the bus with
+ * @param mode      mode to run at (CALL_AND_RESP or PASSIVE_POLL)
+ * @param frame     frame mode (DATA_FRAME or REMOTE_FRAME)
+ * @param payload   payload to send
+ * @param len       length of the payload
  */
-uint64_t CANTelemetry::poll(uint32_t header, int mode) {
-    return poll(header, header, mode);
+uint64_t CANTelemetry::poll(uint32_t header, int mode, bool frame,
+                            uint8_t payload[], int len) {
+    return poll(header, header, mode, frame, payload, len);
 }
 
 /**

@@ -23,12 +23,15 @@ See the [examples](examples) folder for more details.
 - `timeout` - the desired timeout before we stop listening for a response (optional, default 1000 ms)
 - `debug` - flag to enable `CAN_TEST_MODE` (optional, default false)
 
-`poll(uint32_t header, uint32_t filter, int mode, uint8_t payload[], int len)`
+`poll(uint32_t header, uint32_t filter, int mode, bool frame, uint8_t payload[], int len)`
 - `header` - the CAN ID to send
 - `filter` - the response ID desired (optional, default header)
 - `mode` - poll mode, whether to send a request packet or not (`CALL_AND_RESP` or `PASSIVE_POLL`)
+- `frame` - choose to send either a `REMOTE_FRAME` or `DATA_FRAME`
 - `payload` - a byte array of the payload to send (optional, default `NULL`)
 - `len` - length of the byte array (optional, default 0)
+
+The same function above but with header and filter being the same is also available. Parameter order is the same. 
 
 `change_timeout(int timeout)`
 - `timeout` - timeout to change to (optional, default 1000 ms)

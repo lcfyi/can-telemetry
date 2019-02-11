@@ -5,14 +5,18 @@
 #define CALL_AND_RESP   1
 #define PASSIVE_POLL    2
 
+#define REMOTE_FRAME    true
+#define DATA_FRAME      false
+
 class CANTelemetry {
 public:
     CANTelemetry(CANChannel &channel, int baud_rate, int node_id,
                 int timeout = 1000, bool debug = false);
 
-    uint64_t poll(uint32_t header, uint32_t filter, int mode,
+    uint64_t poll(uint32_t header, uint32_t filter, int mode = CALL_AND_RESP,
+                  bool frame = DATA_FRAME, uint8_t payload[] = NULL, int len = 0);
+    uint64_t poll(uint32_t header, int mode = CALL_AND_RESP, bool frame = DATA_FRAME,
                   uint8_t payload[] = NULL, int len = 0);
-    uint64_t poll(uint32_t header, int mode);
 
     void change_timeout(int timeout = 1000);
 
