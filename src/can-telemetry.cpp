@@ -93,7 +93,7 @@ void CANTelemetry::change_timeout(int timeout) {
  * long). This is a private helper method.
  */
 uint64_t CANTelemetry::_decode(uint8_t * arr, int len) {
-    uint8_t n[len] = {0};
+    uint8_t n[8] = {0};
     for (int i = 0; i < len; i++) {
         n[i] = arr[i];
     }
