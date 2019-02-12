@@ -16,22 +16,31 @@ See the [examples](examples) folder for more details.
 
 ## Documentation
 
-`CANTelemetry(CANChannel &channel, int baud_rate, int node_id, int timeout, bool debug)`
+`CANTelemetry(CANChannel &channel, int node_id, int timeout)`
 - `channel` - the CAN channel object
-- `baud_rate` - the desired baud_rate for the CAN channel
 - `node_id` - the ID of this telemetry module on the bus
 - `timeout` - the desired timeout before we stop listening for a response (optional, default 1000 ms)
-- `debug` - flag to enable `CAN_TEST_MODE` (optional, default false)
 
-`poll(uint32_t header, uint32_t filter, int mode, bool frame, uint8_t payload[], int len)`
-- `header` - the CAN ID to send
-- `filter` - the response ID desired (optional, default header)
-- `mode` - poll mode, whether to send a request packet or not (`CALL_AND_RESP` or `PASSIVE_POLL`)
-- `frame` - choose to send either a `REMOTE_FRAME` or `DATA_FRAME`
-- `payload` - a byte array of the payload to send (optional, default `NULL`)
-- `len` - length of the byte array (optional, default 0)
+`init()`
+- Sets a mask to filter out all messages. Call this immediately following `begin()` on the CAN object.
 
-The same function above but with header and filter being the same is also available. Parameter order is the same. 
+`poll(uint32_t filter, CANMessage msg)`
+- `filter` - the response ID desired
+- `msg` - CANMessage to broadcast onto the network. Essentially, it is our query packet. (Optional)
+
+If a `msg` is not specified, the polling method will default to passive polling (useful for if there's already a constant stream of a particular message)
+
+`void adjust(CANMessage &msg, uint32_t id, bool rtr, uint8_t len, std::initializer_list<uint8_t> nums)`
+- `msg` - CANMessage to modify
+- `id` - ID to change the msg to 
+- `rtr` - RTR bit option
+- `len` - length of the data (optional, default 0)
+- `nums` - initializer list of the data (optional, default empty)
+
+Note on `initializer_list`: it allows you to pass in parameters using curly braces, without declaring it elsewhere. Therefore, `adjust(msg, 5, true, 8, {0, 1, 2, 3, 4, 5, 6, 7});` is perfectly valid.
+
+`heartbeat()`
+- Sends a heartbeat packet to the bus and returns 1 if no error is returned. 0 otherwise. 
 
 `change_timeout(int timeout)`
 - `timeout` - timeout to change to (optional, default 1000 ms)

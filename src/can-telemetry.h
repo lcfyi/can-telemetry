@@ -1,33 +1,46 @@
 #pragma once
 // Load the definition for common Particle objects
 #include "Particle.h"
+#include <initializer_list>
 
-#define CALL_AND_RESP   1
-#define PASSIVE_POLL    2
-
-#define REMOTE_FRAME    true
-#define DATA_FRAME      false
+// Modes of data gathering
+enum POLL_MODE {
+    CALL_AND_RESPONSE,
+    PASSIVE_POLL
+};
 
 class CANTelemetry {
 public:
-    CANTelemetry(CANChannel &channel, int baud_rate, int node_id,
-                int timeout = 1000, bool debug = false);
+    // Set up the telemetry object
+    CANTelemetry(CANChannel &channel, int node_id, int timeout = 1000);
 
-    uint64_t poll(uint32_t header, uint32_t filter, int mode = CALL_AND_RESP,
-                  bool frame = DATA_FRAME, uint8_t payload[] = NULL, int len = 0);
-    uint64_t poll(uint32_t header, int mode = CALL_AND_RESP, bool frame = DATA_FRAME,
-                  uint8_t payload[] = NULL, int len = 0);
+    // Initialize the telemetry module
+    void init();
 
+    // Poll methods
+    uint64_t poll(uint32_t filter, CANMessage msg);
+    uint64_t poll(uint32_t filter); 
+
+    // Takes an existing message and adjusts it 
+    void adjust(CANMessage &msg, uint32_t id, bool rtr, uint8_t len = 0, 
+                std::initializer_list<uint8_t> nums = {});
+
+    // Checks the error status of the bus
+    int heartbeat();
+
+    // Change the timeout of the polling modes
     void change_timeout(int timeout = 1000);
 
+    // Interpret the returned data
     template <class T>
     T interpret(uint64_t data, int starting, int ending);
 private:
     CANChannel * _can;
-    int _baud_rate;
-    unsigned long _timeout;
     int _node_id;
-    bool _debug;
+    unsigned long _timeout;
+    CANMessage _default;
+
+    uint64_t _poll(uint32_t filter, CANMessage msg, POLL_MODE mode);
     uint64_t _decode(uint8_t * arr, int len);
     void _set_mask(int mask);
     void _set_mask();

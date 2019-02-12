@@ -5,19 +5,25 @@
 // Initialize a CAN network 
 CANChannel can(CAN_D1_D2);
 
-// Initialize the telemetry object, node id 0, debug
-CANTelemetry tele(can, 50000, 0, 1000, true);
+// Initialize the telemetry object, node id 0
+CANTelemetry tele(can, 0);
+
+// Global message object 
+CANMessage msg;
 
 unsigned long time_ms;
 
 void setup() {
     // No real setup required
+    can.begin(50000); // Begin with baud rate 50000
+    tele.init();      // Initialize our telemetry
     Serial.begin(9600);
 }
 
 void loop() {
-    // Send an empty CAN packet with the supplied header
-    uint64_t val = tele.poll(0x054); 
+    // Build a CANMessage
+    tele.adjust(msg, 0x054, true, 8, {0, 0, 0});
+    uint64_t val = tele.poll(0x054, msg); // Filter for 0x054
     // Interpret the bytes as a float
     float ret_float = tele.interpret<float>(val, 0, 3);
     // Interpret the bytes as a float, big-endian
